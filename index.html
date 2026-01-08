@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>加载页</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* 禁止文字选中 */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 核心容器：保持 750:1334 比例 */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 750px;
+            aspect-ratio: 750 / 1334;
+            cursor: pointer;
+            /* 移动端点击消除高亮色块 */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 适配不同长宽比的屏幕 */
+        @media (min-aspect-ratio: 750/1334) {
+            .container { height: 100vh; width: auto; }
+        }
+        @media (max-aspect-ratio: 750/1334) {
+            .container { width: 100vw; height: auto; min-height: 100vh; }
+        }
+
+        /* --- 背景层 --- */
+        .bg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        /* --- 左右护法猫 (1.5倍放大 + 右移) --- */
+        .cat-left {
+            position: absolute;
+            top: 38%;
+            left: 5%; /* 从 -10% 改为 5%，向右移动 */
+            width: 72%; /* 从 48% 放大 1.5 倍到 72% */
+            z-index: 5;
+            transform: translateY(-50%);
+            animation: floatVertical 3.5s ease-in-out infinite;
+        }
+
+        .cat-right {
+            position: absolute;
+            top: 38%;
+            right: -25%; /* 从 -10% 改为 -25%，向右移动 */
+            width: 72%; /* 从 48% 放大 1.5 倍到 72% */
+            z-index: 5;
+            transform: translateY(-50%) scaleX(-1); 
+            animation: floatVertical 4s ease-in-out infinite reverse;
+        }
+
+        /* --- 瓦猫主体 (超大版) --- */
+        .wamao-main {
+            position: absolute;
+            bottom: -6%; 
+            left: 50%;
+            width: 120%; 
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: pulseBig 3s ease-in-out infinite;
+            pointer-events: none; /* 让点击事件能穿透到容器 */
+        }
+
+        /* (已移除星星相关CSS) */
+
+        /* --- UI 区域 (进度条 + 文字) --- */
+        .ui-area {
+            position: absolute;
+            top: 15%; /* 放在上方 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%; /* 宽度增加 */
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 进度条轨道 (加高) */
+        .progress-track {
+            position: relative;
+            width: 100%;
+            height: 24px; /* 高度翻倍，视觉更清晰 */
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            margin-bottom: 25px; /* 增加间距 */
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.8); /* 加个边框更精致 */
+        }
+
+        /* 进度条填充 */
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FF9A9E, #FECFEF);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 154, 158, 0.6);
+        }
+
+        /* 进度游标图标 (放大) */
+        .progress-cursor {
+            position: absolute;
+            top: 50%;
+            left: 0%; 
+            width: 65px; /* 图标放大 */
+            height: auto;
+            transform: translate(-50%, -50%);
+            transition: left 0.1s linear; /* 平滑移动 */
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            z-index: 21;
+        }
+
+        /* 提示文字 (放大 + 阴影增强) */
+        .tips-text {
+            color: #fff;
+            /* 使用 clamp 保证在极小屏幕不换行，大屏幕足够大 */
+            font-size: clamp(20px, 5vw, 28px); 
+            font-weight: 800; /* 加粗 */
+            text-shadow: 0 3px 6px rgba(0,0,0,0.6);
+            letter-spacing: 2px;
+            text-align: center;
+            min-height: 40px;
+            line-height: 1.5;
+        }
+
+        .blink {
+            animation: textBlink 1.2s infinite;
+        }
+
+        /* --- 动画关键帧 --- */
+        @keyframes floatVertical {
+            0%, 100% { margin-top: 0; }
+            50% { margin-top: -30px; } /* 浮动幅度加大 */
+        }
+
+        @keyframes pulseBig {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        @keyframes textBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.98); }
+        }
+
+    </style>
+    <script src="audioManager.js"></script>
+</head>
+<body>
+    <!-- 音频控制按钮 -->
+    <div id="audioControl" style="position: absolute; top: 20px; right: 20px; z-index: 100; cursor: pointer; width: 30px; height: 30px;">
+        <svg id="audioIcon" width="30" height="30" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2c1.1 0 2 .9 2 2v5h5c1.1 0 2 .9 2 2s-.9 2-2 2h-5v5c0 1.1-.9 2-2 2s-2-.9-2-2v-5H5c-1.1 0-2-.9-2-2s.9-2 2-2h5V4c0-1.1.9-2 2-2z"/>
+        </svg>
+    </div>
+    <script>
+        // 绑定音频控制按钮点击事件
+        document.getElementById('audioControl').addEventListener('click', AudioManager.togglePlay);
+    </script>
+    <div class="container" id="mainContainer">
+        <img src="./image/background.png" alt="bg" class="bg-layer">
+        
+        <img src="./image/leftcat.png" alt="left cat" class="cat-left">
+        <img src="./image/rightcat.png" alt="right cat" class="cat-right">
+        
+        <img src="./image/wamao1.png" alt="wamao" class="wamao-main">
+
+        <div class="ui-area">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+                <img src="./image/jindu.png" alt="cursor" class="progress-cursor" id="progressCursor">
+            </div>
+            <div class="tips-text" id="tipsText">正在加载资源 0%</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressFill = document.getElementById('progressFill');
+            const progressCursor = document.getElementById('progressCursor');
+            const tipsText = document.getElementById('tipsText');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            let progress = 0;
+            let isLoaded = false;
+
+            // 模拟加载动画
+            const timer = setInterval(() => {
+                // 随机增加进度，模拟真实感
+                const step = Math.random() * 2 + 0.8;
+                progress += step;
+
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(timer);
+                    isLoaded = true;
+
+                    // 确保视觉走到终点
+                    progressFill.style.width = '100%';
+                    progressCursor.style.left = '100%';
+                    
+                    // 改变提示文字
+                    tipsText.innerHTML = "加载完成 · 即将进入";
+                    tipsText.classList.add('blink');
+                    
+                    // 停留两秒后自动跳转到瓦猫历史馆.html
+                    setTimeout(() => {
+                        window.location.href = 'lishiguan.html';
+                    }, 2000);
+                    
+                } else {
+                    // 更新进度条 UI
+                    progressFill.style.width = `${progress}%`;
+                    progressCursor.style.left = `${progress}%`;
+                    tipsText.textContent = `资源加载中... ${Math.floor(progress)}%`;
+                }
+            }, 30); // 刷新频率
+
+            // 点击跳转逻辑
+            mainContainer.addEventListener('click', () => {
+                if (isLoaded) {
+                    window.location.href = targetUrl;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

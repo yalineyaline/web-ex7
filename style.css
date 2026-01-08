@@ -1,0 +1,462 @@
+/* 全局样式重置 & CSS变量定义（核心：统一管理通用值） */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; 
+    font-family: "KaiTi", "楷体", serif;
+    touch-action: none;
+    /* 全局CSS变量：原有值完全保留 */
+    --main-color: #8B4513;    /* 主色：棕红 */
+    --text-color: #4a3b2a;    /* 正文深色 */
+    --light-text-color: #6b5340; /* 浅文本色 */
+    --base-spacing: 1.3rem;   /* 基础间距 */
+    --pc-max-size: 55%;       /* PC端卷轴最大宽高 */
+    --mobile-padding: 1%;     /* 移动端内边距 */
+    --pc-padding: 3% 4%;      /* PC端内边距 */
+    --bubble-color: #fff8e1;  /* 气泡背景色 */
+
+    /* ========== 拆分：移动端点击区参数（你调这里适配移动端） ========== */
+    --mobile-hit-right: 15%;    /* 移动端点击区离右侧 */
+    --mobile-hit-bottom: 16%;   /* 移动端点击区离底部 */
+    --mobile-hit-width: 38%;    /* 移动端点击区宽度 */
+    --mobile-hit-height: 27%;   /* 移动端点击区高度 */
+    /* ========== 拆分：PC端点击区参数（你调这里适配PC端） ========== */
+    --pc-hit-right: 40%;         /* PC端点击区离右侧（单独调） */
+    --pc-hit-bottom: 10%;       /* PC端点击区离底部（单独调） */
+    --pc-hit-width: 10%;        /* PC端点击区宽度（单独调） */
+    --pc-hit-height: 30%;       /* PC端点击区高度（单独调） */
+
+    /* 通用气泡偏移（可保留） */
+    --bubble-y-offset: -120px; 
+    --bubble-x-offset: -50px;  
+    /* 调试用红框（可选） */
+    /* --hit-bg: rgba(255,0,0,0.4);  */
+}
+
+/* 核心场景容器：所有图层的父容器 */
+.scene {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* 通用图层样式：所有装饰图层的基础规则（完全保留） */
+.layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    pointer-events: none; /* 图层穿透，不遮挡交互 */
+}
+
+/* 瓦猫图层：完全保留原始布局，仅新增ID样式（不改动布局） */
+#wamao-clickable {
+    z-index: 5;
+    background-image: url('./image/wamao.png');
+    pointer-events: none; /* 保留穿透，点击交给子元素 */
+    cursor: default;
+    /* 原始布局规则完全保留，无任何改动 */
+    top: 56%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: center; /* 明确旋转中心 */
+    animation: wamaoShake 5s infinite alternate ease-in-out;
+}
+
+/* 瓦猫右下角点击区域：核心控制可点击范围（不影响布局） */
+.wamao-hit-area {
+    position: absolute;
+    /* 先默认用移动端参数（后续媒体查询覆盖PC端） */
+    right: var(--mobile-hit-right);    
+    bottom: var(--mobile-hit-bottom);  
+    width: var(--mobile-hit-width);    
+    height: var(--mobile-hit-height);  
+    /* 可视化红框（调试用） */
+    background-color: var(--hit-bg);
+    /* border: 2px solid #ff0000; */
+    /* 开启点击，不影响其他元素 */
+    pointer-events: auto; 
+    cursor: pointer;   
+    z-index: 1; 
+}
+
+/* 气泡、动画、其他图层样式 完全保留（无改动） */
+.wamao-speech-bubble {
+    position: absolute;
+    z-index: 6; 
+    background-color: var(--bubble-color);
+    padding: 15px 25px;
+    border-radius: 20px;
+    border: 3px solid var(--main-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    max-width: 80%;
+    text-align: center;
+}
+.wamao-speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 15px 15px 0;
+    border-style: solid;
+    border-color: var(--bubble-color) transparent transparent;
+}
+.wamao-speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 18px 18px 0;
+    border-style: solid;
+    border-color: var(--main-color) transparent transparent;
+}
+.wamao-speech-bubble.show {
+    opacity: 1;
+    visibility: visible;
+}
+#bubble-text {
+    font-size: 1.2rem;
+    color: var(--main-color);
+    font-family: "KaiTi", "楷体", serif;
+    line-height: 1.5;
+}
+@keyframes wamaoShake {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    50% { transform: translate(-50%, -50%) rotate(2deg); }
+    100% { transform: translate(-50%, -50%) rotate(-2deg); }
+}
+.background-layer {
+    z-index: 1;
+    background-image: url('./image/backgroud.png');
+}
+.roof-layer {
+    z-index: 2;
+    background-image: url('./image/roof.png');
+}
+.juanzhou-layer {
+    z-index: 3;
+    background-image: url('./image/juanzhou.png');
+    pointer-events: auto;
+}
+.cloud-layer {
+    z-index: 4;
+    background-image: url('./image/cloud.png');
+}
+.scroll-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 60%;  
+    max-height: 60%; 
+    width: 100%;
+    height: 100%;
+    position: relative;
+    pointer-events: auto;
+    z-index: 10;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+.scroll-content-area {
+    position: absolute;
+    z-index: 20;
+    width: 55%;   
+    height: 55%;  
+    top: 50%;     
+    left: 25%;    
+    transform: translate(0, -50%);
+    padding: var(--pc-padding);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    filter: none;
+}
+.scroll-content-area::-webkit-scrollbar {
+    display: none;
+}
+.text-inner {
+    color: var(--text-color);
+    line-height: 1.85;
+    font-size: 1.15rem;
+    text-align: justify;
+    width: 100%;
+    word-wrap: break-word;
+    word-break: break-all;
+    text-shadow: 0 0 1px rgba(0,0,0,0.1);
+}
+.text-inner h1 {
+    text-align: center;
+    color: var(--main-color);
+    font-weight: normal;
+    font-size: 2rem;
+    text-shadow: 0 0 2px rgba(139, 69, 19, 0.1);
+}
+.text-inner h2 {
+    color: var(--main-color); 
+    margin-top: var(--base-spacing);
+    font-size: 1.4rem;
+    font-weight: normal;
+    border-bottom: 1px dashed var(--text-color);
+    padding-bottom: 0.5rem;
+    text-shadow: 0 0 1px rgba(139, 69, 19, 0.1);
+}
+.wamao-list {
+    margin: var(--base-spacing) 0;
+    padding-left: 2rem;
+    width: 100%;
+}
+.wamao-list li {
+    margin: 1rem 0;
+    font-size: 1.15rem;
+    color: #5a4535;
+    width: 100%;
+    word-wrap: break-word;
+    text-shadow: 0 0 1px rgba(0,0,0,0.05);
+}
+.scroll-img-box {
+    margin: var(--base-spacing) 0; 
+    text-align: center; 
+    width: 100%;
+}
+.scroll-img {
+    width: 100%; 
+    max-width: 100%; 
+    height: auto; 
+    border-radius: 8px; 
+    border: 2px solid var(--main-color);
+    padding: 5px;
+    background-color: #fff;
+    transition: transform 0.3s ease;
+}
+.scroll-img:hover {
+    transform: scale(1.05);
+}
+.img-desc {
+    margin-top: 0.8rem;
+    font-size: 1rem;
+    color: var(--light-text-color);
+    line-height: 1.6;
+    width: 100%;
+    text-shadow: 0 0 1px rgba(0,0,0,0.1);
+}
+.link-btn {
+    display: inline-block;
+    margin: 1.2rem 0;
+    padding: 0.7rem 1.4rem;
+    background-color: var(--main-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.1rem;
+    border: none;
+}
+.link-btn:hover {
+    background-color: #a0522d;
+}
+.wamao-video {
+    margin: var(--base-spacing) 0;
+    text-align: center;
+    width: 100%;
+}
+.wamao-video video {
+    width: 100%; 
+    max-width: 100%; 
+    border-radius: 8px; 
+    border: 2px solid var(--main-color);
+    background: #000;
+}
+
+/* ========== 移动端适配（仅改点击区，其余不变） ========== */
+@media screen and (max-width: 1023px) {
+    .background-layer, .roof-layer, .juanzhou-layer, .cloud-layer {
+        background-size: 100% 100%;
+        background-position: 0 0;
+        width: 100vw;
+        height: 100vh;
+    }
+    .scroll-container {
+        max-width: none;
+        max-height: none;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        transform: none;
+    }
+    .scroll-content-area {
+        padding: var(--mobile-padding);
+    }
+    .text-inner {
+        font-size: calc(2vw + 0.4rem);
+        line-height: 1.7;
+        text-shadow: 0 0 1px rgba(0,0,0,0.2);
+    }
+    .text-inner h1 {
+        font-size: calc(3vw + 0.6rem);
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 2px rgba(139, 69, 19, 0.2);
+    }
+    .text-inner h2 {
+        font-size: calc(2.5vw + 0.5rem);
+        margin: 1rem 0 0.6rem 0;
+        text-shadow: 0 0 1px rgba(139, 69, 19, 0.2);
+    }
+    .wamao-list li {
+        font-size: calc(1.8vw + 0.3rem);
+        margin: 0.8rem 0;
+    }
+    .img-desc {
+        font-size: calc(1.5vw + 0.2rem);
+        text-shadow: 0 0 1px rgba(0,0,0,0.2);
+    }
+    .link-btn {
+        padding: calc(1vw + 0.3rem) calc(2vw + 0.5rem);
+        font-size: calc(1.8vw + 0.3rem);
+    }
+
+    /* 移动端点击区：用专属变量，无需缩放（已单独定义） */
+    .wamao-hit-area {
+        right: var(--mobile-hit-right);
+        bottom: var(--mobile-hit-bottom);
+        width: var(--mobile-hit-width);
+        height: var(--mobile-hit-height);
+    }
+    
+    .wamao-speech-bubble {
+        padding: 10px 20px;
+    }
+    #bubble-text {
+        font-size: calc(2vw + 0.5rem);
+    }
+}
+
+/* ========== PC端适配（核心：覆盖点击区为PC专属参数） ========== */
+@media screen and (min-width: 1024px) {
+    .scroll-container {
+        max-width: var(--pc-max-size);
+        max-height: var(--pc-max-size);
+    }
+    .scroll-content-area {
+        width: 40%;
+        height: 100%;
+        left: 31.5%;
+    }
+    .text-inner {
+        font-size: 1.8rem;
+        line-height: 1.5;
+        padding: 0 2rem;
+    }
+    .text-inner h1 {
+        font-size: 3.5rem;
+        margin-bottom: 2rem;
+    }
+    .text-inner h2 {
+        font-size: 2.5rem;
+        border-bottom: 4px dashed var(--main-color);
+        margin-bottom: 1rem;
+    }
+    .wamao-list li {
+        font-size: 1.5rem;
+    }
+    .img-desc {
+        font-size: 1.2rem;
+    }
+    .scroll-img, .wamao-video video {
+        max-width: 800px;
+    }
+    .scroll-content-area::-webkit-scrollbar {
+        display: block;
+        width: 10px;
+        background: transparent;
+    }
+    .scroll-content-area::-webkit-scrollbar-thumb {
+        background: var(--main-color);
+        border-radius: 5px;
+        border: 2px solid transparent;
+    }
+
+    /* ========== 关键：PC端点击区用专属变量 ========== */
+    .wamao-hit-area {
+        right: var(--pc-hit-right);      /* PC端离右侧距离 */
+        bottom: var(--pc-hit-bottom);    /* PC端离底部距离 */
+        width: var(--pc-hit-width);      /* PC端宽度 */
+        height: var(--pc-hit-height);    /* PC端高度 */
+        /* 取消缩放（已单独定义PC尺寸，无需再乘1.2） */
+        width: var(--pc-hit-width);
+        height: var(--pc-hit-height);
+        
+        
+    }
+    
+    .wamao-speech-bubble {
+        padding: 20px 30px;
+    }
+    #bubble-text {
+        font-size: 1.5rem;
+    }
+}
+
+/* 下一步按钮样式 */
+.next-btn {
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+    padding: 12px 24px;
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-family: "KaiTi", "楷体", serif;
+    cursor: pointer;
+    z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+.next-btn:hover {
+    background-color: #a0522d;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 1023px) {
+    .next-btn {
+        font-size: calc(2vw + 0.5rem);
+        padding: 10px 20px;
+        right: 3%;
+        bottom: 3%;
+    }
+}
+
+/* PC端适配 */
+@media screen and (min-width: 1024px) {
+    .next-btn {
+        font-size: 1.5rem;
+        padding: 15px 30px;
+        right: 4%;
+        bottom: 4%;
+    }
+}

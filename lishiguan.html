@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>瓦猫历史馆</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="audioManager.js"></script>
+</head>
+<body>
+    <!-- 音频控制按钮 -->
+    <div id="audioControl" style="position: absolute; top: 20px; right: 20px; z-index: 9999; cursor: pointer; width: 30px; height: 30px;">
+        <svg id="audioIcon" width="30" height="30" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2c1.1 0 2 .9 2 2v5h5c1.1 0 2 .9 2 2s-.9 2-2 2h-5v5c0 1.1-.9 2-2 2s-2-.9-2-2v-5H5c-1.1 0-2-.9-2-2s.9-2 2-2h5V4c0-1.1.9-2 2-2z"/>
+        </svg>
+    </div>
+    <script>
+        // 绑定音频控制按钮点击事件
+        document.getElementById('audioControl').addEventListener('click', AudioManager.togglePlay);
+    </script>
+    <!-- 核心场景容器：所有图层的基准 -->
+    <div class="scene">
+        <!-- 图层分层：backgroud → roof → juanzhou → cloud → wamao -->
+        <div class="layer background-layer"></div>
+        <div class="layer roof-layer"></div>
+        
+        <!-- 卷轴内容区域（juanzhou 图层 + 内容） -->
+        <div class="layer juanzhou-layer">
+            <div class="scroll-container">
+                <div class="scroll-content-area">
+                    <div class="text-inner">
+                        <h1>瓦猫溯源</h1>
+                        
+                        <div class="scroll-img-box">
+                            <img src="image/1.jpg" alt="清代瓦猫实物" class="scroll-img">
+                            <p class="img-desc">清代滇西民居屋脊瓦猫（图源：云南民俗博物馆）</p>
+                        </div>
+
+                        <h2>一、瓦猫的起源</h2>
+                        <p>瓦猫，又称"镇脊虎"，是云南特有的民俗神兽，最早可追溯至明代洪武年间。明初汉族大规模迁入云南，将中原"镇宅瑞兽"文化与云南本土巫傩文化融合，以陶土烧制猫形图腾，置于民居屋脊正中，寓意吞邪纳福、镇宅护院。</p>
+                        <p>早期瓦猫多为青灰陶胎，造型粗犷，张口露齿，意在"吞噬一切不祥"，是西南边疆民众对抗自然灾异、邪祟的精神寄托。</p>
+
+                        <a href="https://www.ynmuseum.org/" target="_blank" class="link-btn">查看云南民俗博物馆官网</a>
+
+                        <div class="scroll-img-box">
+                            <img src="image/2.jpg" alt="不同形制的瓦猫" class="scroll-img">
+                            <p class="img-desc">不同地域的瓦猫形制（左：大理 右：建水）</p>
+                        </div>
+
+                        <h2>二、地域与形制演变</h2>
+                        <p>明清时期，瓦猫在云南各地形成不同风格：</p>
+                        <ul class="wamao-list">
+                            <li>大理瓦猫：身形瘦长，双耳直立，多饰以彩绘</li>
+                            <li>建水瓦猫：短粗敦实，腹部浑圆，象征"聚财"</li>
+                            <li>腾冲瓦猫：融入傣族图腾元素，添有鳞甲纹路</li>
+                        </ul>
+                        <p>至民国时期，瓦猫从"镇宅神器"逐渐演变为民俗装饰，造型趋于温和，部分还会在口中嵌琉璃珠，寓意"明珠镇宅"。</p>
+
+                        <div class="wamao-video">
+                            <h3 style="color: #8B4513; font-size: 1.2rem; margin-bottom: 1rem;">瓦猫古法烧制工艺实拍</h3>
+                            <video controls poster="./image/video-cover.jpg">
+                                <source src="wamao-make.mp4" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                        </div>
+
+                        <div class="scroll-img-box">
+                            <img src="image/3.jpg" alt="现代瓦猫传承" class="scroll-img">
+                            <p class="img-desc">现代非遗匠人制作瓦猫</p>
+                        </div>
+
+                        <h2>三、当代传承</h2>
+                        <p>如今，瓦猫被列入云南非物质文化遗产，大理、建水等地的匠人仍保留古法烧制工艺。除传统屋脊摆件外，瓦猫还衍生出文创产品、茶具、饰品等形式，成为云南民俗文化的标志性符号。</p>
+                        <p>其"镇邪纳福"的核心寓意未变，仍是西南民众对平安、富足生活的美好祈愿。</p>
+                        <!-- 空白延伸区域，用于加长滚动条 -->
+                        <div style="height: 150px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 云朵图层：移到卷轴上方、瓦猫下方 -->
+        <div class="layer cloud-layer"></div>
+        <!-- 瓦猫顶层图层（布局完全不变，仅新增点击区子元素） -->
+        <div class="layer wamao-layer" id="wamao-clickable">
+            <!-- 瓦猫右下角点击区域：仅控制触发范围，不影响布局 -->
+            <div class="wamao-hit-area" id="wamao-hit-area"></div>
+        </div>
+        <!-- 瓦猫对话气泡 -->
+        <div class="wamao-speech-bubble" id="wamao-bubble">
+            <span id="bubble-text">我是瓦猫，守护一方平安～</span>
+        </div>
+    </div>
+
+    <!-- 下一步按钮 -->
+    <button class="next-btn" id="nextButton">下一步</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
